@@ -14,13 +14,13 @@ import (
 func (r *V1) GetRestaurants(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid page parameter"})
 		return
 	}
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit parameter"})
 		return
 	}
 
@@ -33,7 +33,7 @@ func (r *V1) GetRestaurants(c *gin.Context) {
 	ctx := c.Request.Context()
 	restaurants, err := r.usecase.RestaurantUsecase.GetRestaurants(ctx, pagination)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -50,7 +50,7 @@ func (r *V1) CreateRestaurant(c *gin.Context) {
 
 	err := c.ShouldBindBodyWithJSON(&createRestaurant)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -58,7 +58,7 @@ func (r *V1) CreateRestaurant(c *gin.Context) {
 
 	restaurant, err := r.usecase.RestaurantUsecase.CreateRestaurant(ctx, createRestaurant)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -68,7 +68,7 @@ func (r *V1) CreateRestaurant(c *gin.Context) {
 func (r *V1) DeleteRestaurant(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid restaurant id"})
 		return
 	}
 
@@ -77,10 +77,10 @@ func (r *V1) DeleteRestaurant(c *gin.Context) {
 	err = r.usecase.RestaurantUsecase.DeleteRestaurant(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatus(http.StatusNotFound)
+			c.JSON(http.StatusNotFound, gin.H{"error": "restaurant not found"})
 			return
 		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -90,14 +90,14 @@ func (r *V1) DeleteRestaurant(c *gin.Context) {
 func (r *V1) EditRestaurant(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid restaurant id"})
 		return
 	}
 
 	var edit model.EditRestaurant
 	err = c.ShouldBindBodyWithJSON(&edit)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -105,10 +105,10 @@ func (r *V1) EditRestaurant(c *gin.Context) {
 	err = r.usecase.RestaurantUsecase.EditRestaurant(ctx, id, edit)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatus(http.StatusNotFound)
+			c.JSON(http.StatusNotFound, gin.H{"error": "restaurant not found"})
 			return
 		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

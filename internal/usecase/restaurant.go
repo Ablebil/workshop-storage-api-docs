@@ -2,12 +2,14 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 	"workshop-storage-api-docs/internal/entity"
 	"workshop-storage-api-docs/internal/model"
 	"workshop-storage-api-docs/internal/repository"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type IRestaurantUsecase interface {
@@ -35,7 +37,7 @@ func (r *RestaurantUsecase) CreateRestaurant(ctx context.Context, createRestaura
 
 	err := r.restaurantRepository.CreateRestaurant(ctx, restaurant)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to create restaurant")
 	}
 
 	response := model.ToRestaurantResponse(restaurant)
@@ -45,7 +47,7 @@ func (r *RestaurantUsecase) CreateRestaurant(ctx context.Context, createRestaura
 func (r *RestaurantUsecase) GetRestaurants(ctx context.Context, pagination model.Pagination) ([]model.RestaurantResponse, error) {
 	restaurants, err := r.restaurantRepository.GetRestaurants(ctx, pagination)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to get restaurants")
 	}
 
 	responses := model.ToRestaurantResponses(restaurants)
@@ -53,9 +55,27 @@ func (r *RestaurantUsecase) GetRestaurants(ctx context.Context, pagination model
 }
 
 func (r *RestaurantUsecase) DeleteRestaurant(ctx context.Context, id uuid.UUID) error {
-	return r.restaurantRepository.DeleteRestaurant(ctx, id)
+	err := r.restaurantRepository.DeleteRestaurant(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		return errors.New("failed to delete restaurant")
+	}
+
+	return nil
 }
 
 func (r *RestaurantUsecase) EditRestaurant(ctx context.Context, id uuid.UUID, edit model.EditRestaurant) error {
-	return r.restaurantRepository.EditRestaurant(ctx, id, edit)
+	err := r.restaurantRepository.EditRestaurant(ctx, id, edit)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		return errors.New("failed to edit restaurant")
+	}
+
+	return nil
 }

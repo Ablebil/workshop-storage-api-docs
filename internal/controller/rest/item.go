@@ -14,19 +14,19 @@ import (
 func (r *V1) GetRestaurantItems(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid restaurant id"})
 		return
 	}
 
-	page, err := strconv.Atoi(c.Query("page"))
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid page parameter"})
 		return
 	}
 
-	limit, err := strconv.Atoi(c.Query("limit"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit parameter"})
 		return
 	}
 
@@ -39,7 +39,7 @@ func (r *V1) GetRestaurantItems(c *gin.Context) {
 	ctx := c.Request.Context()
 	items, err := r.usecase.ItemUsecase.GetRestaurantItems(ctx, pagination, id)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -54,21 +54,21 @@ func (r *V1) GetRestaurantItems(c *gin.Context) {
 func (r *V1) CreateItem(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid restaurant id"})
 		return
 	}
 
 	var create model.CreateItem
 	err = c.ShouldBindBodyWithJSON(&create)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
 	ctx := c.Request.Context()
 	item, err := r.usecase.ItemUsecase.CreateItem(ctx, id, create)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -78,7 +78,7 @@ func (r *V1) CreateItem(c *gin.Context) {
 func (r *V1) DeleteItem(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid item id"})
 		return
 	}
 
@@ -86,10 +86,10 @@ func (r *V1) DeleteItem(c *gin.Context) {
 	err = r.usecase.ItemUsecase.DeleteItem(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatus(http.StatusNotFound)
+			c.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
 			return
 		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -99,14 +99,14 @@ func (r *V1) DeleteItem(c *gin.Context) {
 func (r *V1) EditItem(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid item id"})
 		return
 	}
 
 	var edit model.EditItem
 	err = c.ShouldBindBodyWithJSON(&edit)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -114,10 +114,10 @@ func (r *V1) EditItem(c *gin.Context) {
 	err = r.usecase.ItemUsecase.EditItem(ctx, id, edit)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatus(http.StatusNotFound)
+			c.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
 			return
 		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

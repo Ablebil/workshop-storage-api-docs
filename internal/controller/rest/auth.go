@@ -14,13 +14,13 @@ func (r *V1) Register(c *gin.Context) {
 
 	err := c.ShouldBindBodyWithJSON(&registerRequest)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
 	err = r.validator.Struct(registerRequest)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -40,20 +40,20 @@ func (r *V1) Login(c *gin.Context) {
 
 	err := c.ShouldBindBodyWithJSON(&loginRequest)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
 	err = r.validator.Struct(loginRequest)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
 	ctx := c.Request.Context()
 	token, err := r.usecase.AuthUsecase.Login(ctx, loginRequest)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

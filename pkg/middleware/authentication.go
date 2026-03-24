@@ -11,19 +11,15 @@ func (m *Middleware) Authentication(c *gin.Context) {
 	header := c.GetHeader("Authorization")
 
 	if header == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized",
-		})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
 		return
 	}
 
 	token := strings.Split(header, " ")[1]
 	userId, role, err := m.jwt.ValidateToken(token)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "invalid token/failed to validate token",
-		})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
 	}
 
 	c.Set("userId", userId)

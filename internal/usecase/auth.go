@@ -41,7 +41,7 @@ func NewAuthUsecase(jwt jwt.JWT, bcrypt bcrypt.IBcrypt, oAuth2 *oauth2.Config, u
 func (u *AuthUsecase) Register(ctx context.Context, param model.UserRegister) error {
 	hashedPassword, err := u.Bcrypt.GenerateHash(param.Password)
 	if err != nil {
-		return err
+		return errors.New("failed to hash password")
 	}
 	user := entity.User{
 		UserId:   uuid.New(),
@@ -52,7 +52,7 @@ func (u *AuthUsecase) Register(ctx context.Context, param model.UserRegister) er
 
 	err = u.UserRepository.CreateUser(ctx, user)
 	if err != nil {
-		return err
+		return errors.New("failed to create user")
 	}
 	return nil
 }
@@ -60,17 +60,17 @@ func (u *AuthUsecase) Register(ctx context.Context, param model.UserRegister) er
 func (u *AuthUsecase) Login(ctx context.Context, param model.UserLogin) (string, error) {
 	user, err := u.UserRepository.GetUserByEmail(ctx, param.Email)
 	if err != nil {
-		return "", err
+		return "", errors.New("invalid email or password")
 	}
 
 	err = u.Bcrypt.ValidatePassword(user.Password, param.Password)
 	if err != nil {
-		return "", err
+		return "", errors.New("invalid email or password")
 	}
 
 	token, err := u.Jwt.GenerateToken(user.UserId.String(), user.Role)
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to generate token")
 	}
 
 	return token, nil
@@ -83,13 +83,13 @@ func (u *AuthUsecase) GenerateGoogleAuthLink(state string) string {
 func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (string, error) {
 	token, err := u.Config.Exchange(ctx, code)
 	if err != nil {
-		return "", errors.New("code exchange failed: " + err.Error())
+		return "", errors.New("failed to exchange code for token")
 	}
 
 	client := u.Config.Client(ctx, token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
-		return "", errors.New("failed getting user info: " + err.Error())
+		return "", errors.New("failed to get user info")
 	}
 	defer resp.Body.Close()
 
@@ -97,7 +97,7 @@ func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (string, 
 
 	err = json.NewDecoder(resp.Body).Decode(&userInfo)
 	if err != nil {
-		return "", errors.New("failed decoding user info: " + err.Error())
+		return "", errors.New("failed to decode user info")
 	}
 
 	user, err := u.UserRepository.GetUserByEmail(ctx, userInfo.Email)
@@ -110,13 +110,13 @@ func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (string, 
 		}
 		err = u.UserRepository.CreateUser(ctx, *user)
 		if err != nil {
-			return "", err
+			return "", errors.New("failed to create user")
 		}
 	}
 
 	jwtToken, err := u.Jwt.GenerateToken(user.UserId.String(), user.Role)
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to generate token")
 	}
 
 	return jwtToken, nil
