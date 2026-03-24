@@ -14,6 +14,10 @@ type UserInfo struct {
 	Email string `json:"email"`
 }
 
+type TokenResponse struct {
+	Token string `json:"token"`
+}
+
 var (
 	UserRoleAdmin = "admin"
 	UserRoleUser  = "user"

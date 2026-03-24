@@ -17,9 +17,9 @@ import (
 
 type IAuthUsecase interface {
 	Register(ctx context.Context, param model.UserRegister) error
-	Login(ctx context.Context, param model.UserLogin) (string, error)
+	Login(ctx context.Context, param model.UserLogin) (*model.TokenResponse, error)
 	GenerateGoogleAuthLink(state string) string
-	HandleCallback(ctx context.Context, code string) (string, error)
+	HandleCallback(ctx context.Context, code string) (*model.TokenResponse, error)
 }
 
 type AuthUsecase struct {
@@ -57,21 +57,23 @@ func (u *AuthUsecase) Register(ctx context.Context, param model.UserRegister) er
 	return nil
 }
 
-func (u *AuthUsecase) Login(ctx context.Context, param model.UserLogin) (string, error) {
+func (u *AuthUsecase) Login(ctx context.Context, param model.UserLogin) (*model.TokenResponse, error) {
 	user, err := u.UserRepository.GetUserByEmail(ctx, param.Email)
 	if err != nil {
-		return "", errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password")
 	}
 
 	err = u.Bcrypt.ValidatePassword(user.Password, param.Password)
 	if err != nil {
-		return "", errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password")
 	}
 
-	token, err := u.Jwt.GenerateToken(user.UserId.String(), user.Role)
+	tokenStr, err := u.Jwt.GenerateToken(user.UserId.String(), user.Role)
 	if err != nil {
-		return "", errors.New("failed to generate token")
+		return nil, errors.New("failed to generate token")
 	}
+
+	token := &model.TokenResponse{Token: tokenStr}
 
 	return token, nil
 }
@@ -80,16 +82,16 @@ func (u *AuthUsecase) GenerateGoogleAuthLink(state string) string {
 	return u.Config.AuthCodeURL(state)
 }
 
-func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (string, error) {
+func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (*model.TokenResponse, error) {
 	token, err := u.Config.Exchange(ctx, code)
 	if err != nil {
-		return "", errors.New("failed to exchange code for token")
+		return nil, errors.New("failed to exchange code for token")
 	}
 
 	client := u.Config.Client(ctx, token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
-		return "", errors.New("failed to get user info")
+		return nil, errors.New("failed to get user info")
 	}
 	defer resp.Body.Close()
 
@@ -97,7 +99,7 @@ func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (string, 
 
 	err = json.NewDecoder(resp.Body).Decode(&userInfo)
 	if err != nil {
-		return "", errors.New("failed to decode user info")
+		return nil, errors.New("failed to decode user info")
 	}
 
 	user, err := u.UserRepository.GetUserByEmail(ctx, userInfo.Email)
@@ -110,14 +112,16 @@ func (u *AuthUsecase) HandleCallback(ctx context.Context, code string) (string, 
 		}
 		err = u.UserRepository.CreateUser(ctx, *user)
 		if err != nil {
-			return "", errors.New("failed to create user")
+			return nil, errors.New("failed to create user")
 		}
 	}
 
-	jwtToken, err := u.Jwt.GenerateToken(user.UserId.String(), user.Role)
+	jwtTokenStr, err := u.Jwt.GenerateToken(user.UserId.String(), user.Role)
 	if err != nil {
-		return "", errors.New("failed to generate token")
+		return nil, errors.New("failed to generate token")
 	}
+
+	jwtToken := &model.TokenResponse{Token: jwtTokenStr}
 
 	return jwtToken, nil
 }

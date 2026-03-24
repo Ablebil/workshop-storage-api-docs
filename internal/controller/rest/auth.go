@@ -32,7 +32,7 @@ func (r *V1) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "user registered successfully"})
+	c.JSON(http.StatusCreated, nil)
 }
 
 func (r *V1) Login(c *gin.Context) {
@@ -57,7 +57,7 @@ func (r *V1) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, token)
 }
 
 func (r *V1) LoginWithGoogle(c *gin.Context) {
@@ -94,5 +94,5 @@ func (r *V1) HandleGoogleCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, token)
 }
