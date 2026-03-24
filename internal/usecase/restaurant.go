@@ -3,9 +3,9 @@ package usecase
 import (
 	"context"
 	"time"
-	"workshop-restful-api-backend/internal/entity"
-	"workshop-restful-api-backend/internal/model"
-	"workshop-restful-api-backend/internal/repository"
+	"workshop-storage-api-docs/internal/entity"
+	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/internal/repository"
 
 	"github.com/google/uuid"
 )

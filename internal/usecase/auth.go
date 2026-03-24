@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 
-	"workshop-restful-api-backend/internal/entity"
-	"workshop-restful-api-backend/internal/model"
-	"workshop-restful-api-backend/internal/repository"
-	"workshop-restful-api-backend/pkg/bcrypt"
-	"workshop-restful-api-backend/pkg/jwt"
+	"workshop-storage-api-docs/internal/entity"
+	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/internal/repository"
+	"workshop-storage-api-docs/pkg/bcrypt"
+	"workshop-storage-api-docs/pkg/jwt"
 
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"

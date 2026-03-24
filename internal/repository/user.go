@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"workshop-restful-api-backend/internal/entity"
+	"workshop-storage-api-docs/internal/entity"
 
 	"gorm.io/gorm"
 )

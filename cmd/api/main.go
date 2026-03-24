@@ -1,8 +1,8 @@
 package main
 
 import (
-	"workshop-restful-api-backend/config"
-	"workshop-restful-api-backend/internal/app"
+	"workshop-storage-api-docs/config"
+	"workshop-storage-api-docs/internal/app"
 )
 
 func main() {

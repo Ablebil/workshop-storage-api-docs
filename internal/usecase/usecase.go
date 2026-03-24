@@ -1,9 +1,9 @@
 package usecase
 
 import (
-	"workshop-restful-api-backend/internal/repository"
-	"workshop-restful-api-backend/pkg/bcrypt"
-	"workshop-restful-api-backend/pkg/jwt"
+	"workshop-storage-api-docs/internal/repository"
+	"workshop-storage-api-docs/pkg/bcrypt"
+	"workshop-storage-api-docs/pkg/jwt"
 
 	"golang.org/x/oauth2"
 )

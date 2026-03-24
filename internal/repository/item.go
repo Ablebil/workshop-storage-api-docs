@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"workshop-restful-api-backend/internal/entity"
-	"workshop-restful-api-backend/internal/model"
+	"workshop-storage-api-docs/internal/entity"
+	"workshop-storage-api-docs/internal/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

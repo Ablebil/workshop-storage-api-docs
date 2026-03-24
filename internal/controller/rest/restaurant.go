@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"workshop-restful-api-backend/internal/model"
+	"workshop-storage-api-docs/internal/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

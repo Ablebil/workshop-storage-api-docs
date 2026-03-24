@@ -1,7 +1,7 @@
 package model
 
 import (
-	"workshop-restful-api-backend/internal/entity"
+	"workshop-storage-api-docs/internal/entity"
 
 	"github.com/google/uuid"
 )

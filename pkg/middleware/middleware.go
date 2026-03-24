@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"workshop-restful-api-backend/pkg/jwt"
+	"workshop-storage-api-docs/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 )

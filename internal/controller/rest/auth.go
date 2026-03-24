@@ -3,8 +3,8 @@ package rest
 import (
 	"net/http"
 	"os"
-	"workshop-restful-api-backend/internal/model"
-	"workshop-restful-api-backend/pkg/oauth"
+	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/pkg/oauth"
 
 	"github.com/gin-gonic/gin"
 )

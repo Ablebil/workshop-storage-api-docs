@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"workshop-restful-api-backend/internal/entity"
+	"workshop-storage-api-docs/internal/entity"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

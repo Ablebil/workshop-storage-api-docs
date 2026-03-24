@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"workshop-restful-api-backend/internal/usecase"
-	"workshop-restful-api-backend/pkg/middleware"
+	"workshop-storage-api-docs/internal/usecase"
+	"workshop-storage-api-docs/pkg/middleware"
 
 	"github.com/go-playground/validator/v10"
 )
