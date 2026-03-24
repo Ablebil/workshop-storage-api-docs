@@ -32,6 +32,7 @@ func (r *RestaurantUsecase) CreateRestaurant(ctx context.Context, createRestaura
 		Id:        uuid.New(),
 		Name:      createRestaurant.Name,
 		Location:  createRestaurant.Location,
+		ImageURL:  createRestaurant.ImageURL,
 		CreatedAt: time.Now(),
 	}
 
