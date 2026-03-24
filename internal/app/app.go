@@ -12,6 +12,7 @@ import (
 	"workshop-storage-api-docs/pkg/middleware"
 	"workshop-storage-api-docs/pkg/oauth"
 	"workshop-storage-api-docs/pkg/postgres"
+	"workshop-storage-api-docs/pkg/supabase"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -21,12 +22,13 @@ func Run() {
 	app := httpserver.Start()
 	jwtInit := *jwt.NewJWT()
 	bcryptInit := bcrypt.NewBcrypt()
+	storageClient := supabase.NewStorageClient()
 	middleware := middleware.NewMiddleware(&jwtInit)
 	validator := validator.New()
 
 	repo := repository.NewRepository(db)
 	oauthConfig := oauth.GoogleOAuthConfig()
-	uc := usecase.NewUsecase(jwtInit, bcryptInit, &oauthConfig, repo)
+	uc := usecase.NewUsecase(jwtInit, bcryptInit, &oauthConfig, storageClient, repo)
 	v1 := rest.NewV1(middleware, validator, uc)
 
 	rest.NewRouter(app, v1)

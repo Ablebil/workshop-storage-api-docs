@@ -15,24 +15,29 @@ func NewRouter(app *gin.Engine, v1 *V1) {
 			auth.GET("/google/callback", v1.HandleGoogleCallback)
 		}
 
+		media := api.Group("/media")
+		{
+			media.POST("/upload", v1.IMiddleware.Authentication, v1.UploadMedia)
+		}
+
 		restaurants := api.Group("/restaurants")
 		{
 			restaurants.GET("", v1.IMiddleware.Authentication, v1.GetRestaurants)
-			restaurants.POST("", v1.IMiddleware.Authentication, v1.IMiddleware.Authorization("admin", "user"), v1.CreateRestaurant)
+			restaurants.POST("", v1.IMiddleware.Authentication, v1.IMiddleware.Authorization("admin", "user"), v1.CreateRestaurant) // image upload
 			restaurants.DELETE("/:id", v1.DeleteRestaurant)
-			restaurants.PATCH("/:id", v1.EditRestaurant)
+			restaurants.PATCH("/:id", v1.EditRestaurant) // image upload
 
 			restaurantItems := restaurants.Group("/:id/items")
 			{
 				restaurantItems.GET("", v1.GetRestaurantItems)
-				restaurantItems.POST("", v1.CreateItem)
+				restaurantItems.POST("", v1.CreateItem) // image upload
 			}
 		}
 
 		items := api.Group("/items")
 		{
 			items.DELETE("/:id", v1.DeleteItem)
-			items.PATCH("/:id", v1.EditItem)
+			items.PATCH("/:id", v1.EditItem) // image upload
 		}
 	}
 }
