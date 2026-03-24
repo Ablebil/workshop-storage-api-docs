@@ -79,7 +79,11 @@ func (u *MediaUsecase) UploadImage(ctx context.Context, fileHeader *multipart.Fi
 	filePath := folder + fileName
 
 	// upload file to supabase
-	_, err = u.storageClient.UploadFile(u.bucketName, filePath, file)
+	fileOptions := &storage_go.FileOptions{
+		ContentType: &contentType,
+	}
+
+	_, err = u.storageClient.UploadFile(u.bucketName, filePath, file, *fileOptions)
 	if err != nil {
 		return nil, errors.New("failed to upload file to storage " + err.Error())
 	}
