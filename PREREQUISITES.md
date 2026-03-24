@@ -1,47 +1,38 @@
-# Prerequisites
+# Prerequisites Workshop Intern Back End Department BCC 2026 - Object Storage & API Documentation
 
-## 1. Database
-
-This workshop uses **PostgreSQL** (recommended). MySQL is also supported but requires minor code changes (see note below).
+### 1. Project Repository
 
 ---
 
-### PostgreSQL
+This workshop uses the project repository specifically prepared for learning Object Storage and API Documentation.
 
-### Option A: Install Locally
+Clone the repo using the command below:
 
-**Windows**
-Download and run the installer from https://www.postgresql.org/download/windows/
-
-**Arch Linux**
 ```bash
-sudo pacman -S postgresql
-sudo systemctl start postgresql.service
+git clone https://github.com/Ablebil/workshop-storage-api-docs.git
 ```
 
-**Ubuntu/Debian**
+Navigate into the project directory:
+
 ```bash
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
+cd workshop-storage-api-docs
 ```
 
-**macOS**
+Ensure you are on the `main` branch:
+
 ```bash
-brew install postgresql@13
-brew services start postgresql@13
+git checkout main
 ```
 
----
+Install the dependencies needed by the project:
 
-### Option B: Run with Docker (Recommended for PostgreSQL)
-
-Make sure [Docker](https://docs.docker.com/get-docker/) is installed, then:
-
-1. Create a `.env` file:
-
-fill in your own values:
-
+```bash
+go mod tidy
 ```
+
+Next, copy `.env.example` to `.env` and fill it with the environment variables from the previous workshop:
+
+```env
 DB_NAME=
 DB_HOST=
 DB_PORT=
@@ -49,106 +40,62 @@ DB_USER=
 DB_PASSWORD=
 
 APP_PORT=
+
+JWT_SECRET_KEY=
+JWT_EXPIRED_TIME=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URL=
 ```
 
-2. Create a `docker-compose.yml` file with the following content:
-```yaml
-services:
-  postgres:
-    container_name: "postgres"
-    image: postgres:13-alpine
-    ports:
-      - "${DB_PORT}:5432"
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASS}
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    networks:
-      - workshop
+> **Note:** Make sure your PostgreSQL database is running (you can use `docker compose up -d` if you prefer using the provided Docker configuration).
 
-networks:
-  workshop:
-    name: workshop
-    driver: bridge
-```
-
-3. Start the container:
-```bash
-docker compose up -d
-```
-
-4. Verify it's running:
-```bash
-docker ps
-```
-
-For example, a filled-in `.env` for the Docker setup would look like:
-```
-DB_NAME=foodhub
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-APP_PORT=8080
-```
+### 2. Supabase Account & Project Setup
 
 ---
 
-### MySQL (Alternative)
+To implement Object Storage, we will use Supabase. You need to create an account and set up a new project.
 
-> ⚠️ **Note:** The workshop code is written for PostgreSQL. To use MySQL you need to:
-> - Replace `gorm.io/driver/postgres` with `gorm.io/driver/mysql`
-> - Replace `type:uuid` tags with `type:varchar(36)` on all entities
-> - Replace `gen_random_uuid()` with `UUID()` in raw SQL
+#### Step 1 — Open Supabase
 
-**Windows**
-Download and run the installer from https://dev.mysql.com/downloads/installer/
+Open the following page:
 
-**Arch Linux**
-```bash
-sudo pacman -S mysql
-sudo systemctl start mysqld
+```text
+https://supabase.com/
 ```
 
-**Ubuntu/Debian**
-```bash
-sudo apt install mysql-server
-sudo systemctl start mysql
-```
+Click **Start your project** or **Sign In** (it is recommended to continue with your GitHub account).
 
-**macOS**
-```bash
-brew install mysql
-brew services start mysql
-```
+#### Step 2 — Register / Sign In
 
-**Docker**
-```bash
-docker run -d \
-  --name mysql \
-  -e MYSQL_DATABASE=your_db_name \
-  -e MYSQL_USER=your_db_user \
-  -e MYSQL_PASSWORD=your_db_password \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -p 3306:3306 \
-  mysql:8
-```
+Complete the registration process until you reach the Supabase Dashboard.
+
+#### Step 3 — Create a New Project
+
+a. Click **New Project** (if prompted, create an Organization first).
+b. Fill in the required fields:
+
+- **Organization**: Choose the organization you previously created.
+- **Name**: `workshop-4`
+- **Database Password**: Click `Generate a password` button (save this just in case, though we won't strictly use the DB feature for this workshop).
+- **Region**: Choose the region closest to you (e.g., `Singapore`).
+- **Security**: Make sure the `Enable data API` box is checked.
+
+c. Click **Create new project**.
+
+Wait a few minutes for the project to be fully provisioned. Once it's ready, you are good to go! We will set up the storage buckets and API keys together during the workshop.
+
+### 3. Install Postman
 
 ---
 
-## 2. Postman
+To test our endpoints and learn how to create API Documentation, we will use Postman.
 
-**Arch Linux (AUR)**
-```bash
-yay -S postman-bin
+If you don't have it installed yet, please download and install it from the official website:
+
+```text
+https://www.postman.com/downloads/
 ```
 
-**Other OS**
-Download and install from https://www.postman.com/downloads/
-
-Once installed, you can test the API by sending requests to `http://localhost:8080` (or whichever port you configured).
-
-> Alternatively, you can use any HTTP client you prefer (e.g. [Insomnia](https://insomnia.rest/), [curl](https://curl.se/), or the VS Code [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension).
+Create a free Postman account and sign in to the app so you can save your collections.
