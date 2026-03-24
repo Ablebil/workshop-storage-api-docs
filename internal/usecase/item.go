@@ -45,6 +45,7 @@ func (u *ItemUsecase) CreateItem(ctx context.Context, restaurantId uuid.UUID, cr
 		Name:         createItem.Name,
 		Price:        createItem.Price,
 		Available:    createItem.Available,
+		ImageURL:     createItem.ImageURL,
 	}
 
 	err := u.itemRepository.CreateItem(ctx, item)

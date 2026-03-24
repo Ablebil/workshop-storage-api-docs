@@ -12,6 +12,7 @@ type ItemResponse struct {
 	Name         string    `json:"name"`
 	Price        float64   `json:"price"`
 	Available    bool      `json:"available"`
+	ImageURL     string    `json:"image_url"`
 }
 
 func ToItemResponse(item entity.Item) ItemResponse {
@@ -21,6 +22,7 @@ func ToItemResponse(item entity.Item) ItemResponse {
 		Name:         item.Name,
 		Price:        item.Price,
 		Available:    item.Available,
+		ImageURL:     item.ImageURL,
 	}
 }
 
@@ -37,12 +39,14 @@ type CreateItem struct {
 	Name      string  `json:"name"`
 	Price     float64 `json:"price"`
 	Available bool    `json:"available"`
+	ImageURL  string  `json:"image_url"`
 }
 
 type EditItem struct {
 	Name      string  `json:"name"`
 	Price     float64 `json:"price"`
 	Available *bool   `json:"available"`
+	ImageURL  string  `json:"image_url"`
 }
 
 func (e *EditItem) ToMap() map[string]any {
@@ -56,6 +60,9 @@ func (e *EditItem) ToMap() map[string]any {
 	}
 	if e.Available != nil {
 		updates["available"] = *e.Available
+	}
+	if e.ImageURL != "" {
+		updates["image_url"] = e.ImageURL
 	}
 
 	return updates
