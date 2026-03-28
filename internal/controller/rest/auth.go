@@ -1,9 +1,11 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/pkg/apierror"
 	"workshop-storage-api-docs/pkg/oauth"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +30,12 @@ func (r *V1) Register(c *gin.Context) {
 
 	err = r.usecase.AuthUsecase.Register(ctx, registerRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 
@@ -53,7 +60,12 @@ func (r *V1) Login(c *gin.Context) {
 	ctx := c.Request.Context()
 	token, err := r.usecase.AuthUsecase.Login(ctx, loginRequest)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 
@@ -90,7 +102,12 @@ func (r *V1) HandleGoogleCallback(c *gin.Context) {
 	ctx := c.Request.Context()
 	token, err := r.usecase.AuthUsecase.HandleCallback(ctx, code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/pkg/apierror"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 func (r *V1) GetRestaurants(c *gin.Context) {
@@ -33,7 +33,12 @@ func (r *V1) GetRestaurants(c *gin.Context) {
 	ctx := c.Request.Context()
 	restaurants, err := r.usecase.RestaurantUsecase.GetRestaurants(ctx, pagination)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 
@@ -58,7 +63,12 @@ func (r *V1) CreateRestaurant(c *gin.Context) {
 
 	restaurant, err := r.usecase.RestaurantUsecase.CreateRestaurant(ctx, createRestaurant)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 
@@ -76,11 +86,12 @@ func (r *V1) DeleteRestaurant(c *gin.Context) {
 
 	err = r.usecase.RestaurantUsecase.DeleteRestaurant(ctx, id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "restaurant not found"})
-			return
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -104,11 +115,12 @@ func (r *V1) EditRestaurant(c *gin.Context) {
 	ctx := c.Request.Context()
 	err = r.usecase.RestaurantUsecase.EditRestaurant(ctx, id, edit)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "restaurant not found"})
-			return
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
