@@ -1,7 +1,9 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
+	"workshop-storage-api-docs/pkg/apierror"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +21,12 @@ func (r *V1) UploadMedia(c *gin.Context) {
 
 	response, err := r.usecase.MediaUsecase.UploadImage(ctx, file, uploadType)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 

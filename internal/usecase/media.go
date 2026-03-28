@@ -2,12 +2,12 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
 	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/pkg/apierror"
 
 	"github.com/google/uuid"
 	storage_go "github.com/supabase-community/storage-go"
@@ -33,20 +33,20 @@ func (u *MediaUsecase) UploadImage(ctx context.Context, fileHeader *multipart.Fi
 	// validate file size
 	const maxFileSize = 5 * 1024 * 1024
 	if fileHeader.Size > maxFileSize {
-		return nil, errors.New("file size exceeds the 5MB limit")
+		return nil, apierror.New(400, "file size exceeds the maximum limit of 5MB")
 	}
 
 	// validate file type
 	file, err := fileHeader.Open()
 	if err != nil {
-		return nil, errors.New("failed to open file")
+		return nil, apierror.New(400, "failed to open file")
 	}
 	defer file.Close()
 
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
 	if err != nil {
-		return nil, errors.New("failed to read file")
+		return nil, apierror.New(400, "failed to read file")
 	}
 
 	file.Seek(0, 0)
@@ -60,7 +60,7 @@ func (u *MediaUsecase) UploadImage(ctx context.Context, fileHeader *multipart.Fi
 	case "image/png":
 		ext = ".png"
 	default:
-		return nil, errors.New("unsupported file type, only jpg and png are allowed")
+		return nil, apierror.New(400, "unsupported file type, only JPEG and PNG are allowed")
 	}
 
 	// determine folder
@@ -85,7 +85,7 @@ func (u *MediaUsecase) UploadImage(ctx context.Context, fileHeader *multipart.Fi
 
 	_, err = u.storageClient.UploadFile(u.bucketName, filePath, file, *fileOptions)
 	if err != nil {
-		return nil, errors.New("failed to upload file to storage " + err.Error())
+		return nil, apierror.New(500, "failed to upload file to storage")
 	}
 
 	// get public url
