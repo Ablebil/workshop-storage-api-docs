@@ -39,14 +39,14 @@ func (u *MediaUsecase) UploadImage(ctx context.Context, fileHeader *multipart.Fi
 	// validate file type
 	file, err := fileHeader.Open()
 	if err != nil {
-		return nil, apierror.New(400, "failed to open file")
+		return nil, apierror.New(500, "failed to open file")
 	}
 	defer file.Close()
 
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
 	if err != nil {
-		return nil, apierror.New(400, "failed to read file")
+		return nil, apierror.New(500, "failed to read file")
 	}
 
 	file.Seek(0, 0)
