@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 	"workshop-storage-api-docs/internal/model"
+	"workshop-storage-api-docs/pkg/apierror"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 func (r *V1) GetRestaurantItems(c *gin.Context) {
@@ -39,7 +39,12 @@ func (r *V1) GetRestaurantItems(c *gin.Context) {
 	ctx := c.Request.Context()
 	items, err := r.usecase.ItemUsecase.GetRestaurantItems(ctx, pagination, id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 
@@ -68,7 +73,12 @@ func (r *V1) CreateItem(c *gin.Context) {
 	ctx := c.Request.Context()
 	item, err := r.usecase.ItemUsecase.CreateItem(ctx, id, create)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 
@@ -85,11 +95,12 @@ func (r *V1) DeleteItem(c *gin.Context) {
 	ctx := c.Request.Context()
 	err = r.usecase.ItemUsecase.DeleteItem(ctx, id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
-			return
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -113,11 +124,12 @@ func (r *V1) EditItem(c *gin.Context) {
 	ctx := c.Request.Context()
 	err = r.usecase.ItemUsecase.EditItem(ctx, id, edit)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
-			return
+		var apiErr *apierror.APIError
+		if errors.As(err, &apiErr) {
+			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

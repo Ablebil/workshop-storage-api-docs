@@ -6,6 +6,7 @@ import (
 	"workshop-storage-api-docs/internal/entity"
 	"workshop-storage-api-docs/internal/model"
 	"workshop-storage-api-docs/internal/repository"
+	"workshop-storage-api-docs/pkg/apierror"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -31,7 +32,7 @@ func NewItemUsecase(itemRepository repository.IItemRepository) *ItemUsecase {
 func (u *ItemUsecase) GetRestaurantItems(ctx context.Context, pagination model.Pagination, restaurantId uuid.UUID) ([]model.ItemResponse, error) {
 	items, err := u.itemRepository.GetRestaurantItems(ctx, pagination, restaurantId)
 	if err != nil {
-		return nil, errors.New("failed to get restaurant items")
+		return nil, apierror.New(500, "failed to get restaurant items")
 	}
 
 	responses := model.ToItemResponses(items)
@@ -50,7 +51,7 @@ func (u *ItemUsecase) CreateItem(ctx context.Context, restaurantId uuid.UUID, cr
 
 	err := u.itemRepository.CreateItem(ctx, item)
 	if err != nil {
-		return nil, errors.New("failed to create item")
+		return nil, apierror.New(500, "failed to create item")
 	}
 
 	response := model.ToItemResponse(item)
@@ -61,10 +62,10 @@ func (u *ItemUsecase) DeleteItem(ctx context.Context, id uuid.UUID) error {
 	err := u.itemRepository.DeleteItem(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
+			return apierror.New(404, "item not found")
 		}
 
-		return errors.New("failed to delete item")
+		return apierror.New(500, "failed to delete item")
 	}
 
 	return nil
@@ -74,10 +75,10 @@ func (u *ItemUsecase) EditItem(ctx context.Context, id uuid.UUID, edit model.Edi
 	err := u.itemRepository.EditItem(ctx, id, edit)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
+			return apierror.New(404, "item not found")
 		}
 
-		return errors.New("failed to edit item")
+		return apierror.New(500, "failed to edit item")
 	}
 
 	return nil
